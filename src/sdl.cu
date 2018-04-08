@@ -17,6 +17,8 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include "triangulation/s_hull_pro.h"
 
+#include <SDL2pp/SDL2pp.hh>
+
 using namespace std;
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
@@ -91,15 +93,6 @@ int main(void) {
 		SDL_Quit();
 		return 1;
 	}
-//	SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, bmp);
-//	SDL_FreeSurface(bmp);
-//	if (tex == nullptr) {
-//		SDL_DestroyRenderer(ren);
-//		SDL_DestroyWindow(win);
-//		std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-//		SDL_Quit();
-//		return 1;
-//	}
 
 	int screenWidth, screenHeight;
 	SDL_GetWindowSize(win, &screenWidth, &screenHeight);
@@ -118,10 +111,27 @@ int main(void) {
 	SDL_Texture* texture = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, width, height);
 
+	SDL_RenderClear(ren);
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			Uint32 * targetPixel;
+			int pixelPosition = y * bmp->pitch + x * bmp->format->BytesPerPixel;
+			targetPixel = (Uint32*) ((Uint8 *) bmp->pixels + pixelPosition);
+			Uint8 r, g, b;
+			SDL_GetRGB(*targetPixel, bmp->format, &r, &g, &b);
+
+			const unsigned int offset = (y * imageWidth + x) * 4;
+			pixels[offset] = b;
+			pixels[offset + 1] = g;
+			pixels[offset + 2] = r;
+			pixels[offset + 3] = 0xFF;
+		}
+	}
+	SDL_UpdateTexture(texture, NULL, pixels, width * 4);
+
 	struct Point {
 		int x, y, r, g, b;
 	};
-
 	vector<Point> points;
 	const int POINTS_NUM = 1000;
 	const int MARGIN = 2;
@@ -165,28 +175,6 @@ int main(void) {
 		}
 
 		Uint64 begin = SDL_GetPerformanceCounter();
-
-		SDL_RenderClear(ren);
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				Uint32 * targetPixel;
-				int pixelPosition = y * bmp->pitch + x * bmp->format->BytesPerPixel;
-				targetPixel = (Uint32*) ((Uint8 *) bmp->pixels + pixelPosition);
-				Uint8 r, g, b;
-				SDL_GetRGB(*targetPixel, bmp->format, &r, &g, &b);
-
-				const unsigned int offset = (y * imageWidth + x) * 4;
-				pixels[offset] = b;
-				pixels[offset + 1] = g;
-				pixels[offset + 2] = r;
-				pixels[offset + 3] = 0xFF;
-
-//				SDL_SetRenderDrawColor(ren, r, g, b, a);
-//				SDL_RenderDrawPoint(ren, x, y);
-			}
-		}
-
-		SDL_UpdateTexture(texture, NULL, pixels, width * 4);
 		SDL_RenderCopy(ren, texture, NULL, NULL);
 
 		for (auto triad : triads) {
@@ -198,6 +186,11 @@ int main(void) {
 			int y3 = points[triad.c].y;
 
 			trigonRGBA(ren, x1, y1, x2, y2, x3, y3, 0, 0, 0, 0xFF);
+
+//			int r = rand() % 256;
+//			int g = rand() % 256;
+//			int b = rand() % 256;
+//			filledTrigonRGBA(ren, x1, y1, x2, y2, x3, y3, r, g, b, 0xFF);
 		}
 
 		for (int i = 0; i < POINTS_NUM; i++) {
@@ -220,6 +213,8 @@ int main(void) {
 	SDL_DestroyRenderer(ren);
 	SDL_DestroyWindow(win);
 	SDL_Quit();
+
+	return 0;
 }
 
 int main2(void) {
