@@ -3,7 +3,6 @@
 cmake_minimum_required(VERSION 2.8)
 enable_language(CUDA)
 
-
 # Specify include directories
 include_directories(
   src
@@ -11,7 +10,6 @@ include_directories(
   /usr/include/SDL2
 )
 
-add_subdirectory(extlib/libSDL2pp)
 
 # For compilation ...
 # Specify target & source files to compile it from
@@ -28,7 +26,7 @@ target_link_libraries(
   hellocuda
   SDL2
   SDL2_gfx
-  ${SDL2PP_LIBRARIES}
+  SDL2pp
 )
 
 target_compile_features(hellocuda PUBLIC cxx_std_11)

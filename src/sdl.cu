@@ -17,10 +17,6 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include "triangulation/s_hull_pro.h"
 
-#include <SDL2pp/SDL2pp.hh>
-
-using namespace std;
-
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 
@@ -96,15 +92,15 @@ int main(void) {
 
 	int screenWidth, screenHeight;
 	SDL_GetWindowSize(win, &screenWidth, &screenHeight);
-	cout << "Window size is: " << screenWidth << "x" << screenHeight << endl;
+	std::cout << "Window size is: " << screenWidth << "x" << screenHeight << std::endl;
 	int imageWidth = bmp->w;
 	int imageHeight = bmp->h;
-	cout << "Image size is: " << imageWidth << "x" << imageHeight << endl;
+	std::cout << "Image size is: " << imageWidth << "x" << imageHeight << std::endl;
 
 	int width = min(screenWidth, imageWidth);
 	int height = min(screenHeight, imageHeight);
 
-	cout << "pixelFormat is " << SDL_GetPixelFormatName(bmp->format->format) << endl;
+	std::cout << "pixelFormat is " << SDL_GetPixelFormatName(bmp->format->format) << std::endl;
 
 	Uint8 *pixels = new Uint8[width * height * 4];
 
@@ -132,7 +128,7 @@ int main(void) {
 	struct Point {
 		int x, y, r, g, b;
 	};
-	vector<Point> points;
+	std::vector<Point> points;
 	const int POINTS_NUM = 1000;
 	const int MARGIN = 2;
 	Point p;
@@ -155,9 +151,9 @@ int main(void) {
 		pts.push_back(pt);
 	}
 	sort(pts.begin(), pts.end(), pointSortPredicate);
-	vector<Shx>::iterator newEnd = unique(pts.begin(), pts.end(), pointComparisonPredicate);
+	std::vector<Shx>::iterator newEnd = unique(pts.begin(), pts.end(), pointComparisonPredicate);
 	pts.resize(newEnd - pts.begin());
-	vector<Triad> triads;
+	std::vector<Triad> triads;
 	s_hull_pro(pts, triads);
 
 	SDL_LockSurface(bmp);
@@ -203,7 +199,7 @@ int main(void) {
 		SDL_RenderPresent(ren);
 
 		Uint64 t = (SDL_GetPerformanceCounter() - begin) * 1000 / SDL_GetPerformanceFrequency();
-		cout << t << "ms" << endl;
+		std::cout << t << "ms" << std::endl;
 	}
 
 	SDL_UnlockSurface(bmp);

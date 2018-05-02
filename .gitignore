@@ -2,3 +2,8 @@ Debug
 .cproject
 .project
 .settings
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+hellocuda
