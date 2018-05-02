@@ -11,7 +11,6 @@ static inline int bound(int minval, int val, int maxval) {
 template<class M>
 vector<Uint8> convolution(const M& kernel, const vector<Uint8>& image, int width, int height) {
 	int kw = kernel[0].size(), kh = kernel.size(), offsetx = kw / 2, offsety = kw / 2;
-//	QImage out(image.size(), image.format());
 	vector<Uint8> result;
 	result.resize(width * height);
 	float sum;
@@ -20,7 +19,6 @@ vector<Uint8> convolution(const M& kernel, const vector<Uint8>& image, int width
 	const Uint8 *lookup_line;
 
 	for (int y = 0; y < height; y++) {
-//		line = out.scanLine(y);
 		line = result.data() + y * width;
 		for (int x = 0; x < width; x++) {
 			sum = 0;
@@ -28,7 +26,6 @@ vector<Uint8> convolution(const M& kernel, const vector<Uint8>& image, int width
 			for (int j = 0; j < kh; j++) {
 				if (y + j < offsety || y + j >= height)
 					continue;
-//				lookup_line = image.constScanLine(y + j - offsety);
 				lookup_line = image.data() + (y + j - offsety) * width;
 				for (int i = 0; i < kw; i++) {
 					if (x + i < offsetx || x + i >= width)
@@ -65,11 +62,8 @@ void magnitude(vector<Uint8>& input, const vector<Uint8>& gx, const vector<Uint8
 	const Uint8 *gx_line, *gy_line;
 
 	for (int y = 0; y < height; y++) {
-//		line = input.scanLine(y);
 		line = input.data() + y * width;
-//		gx_line = gx.constScanLine(y);
 		gx_line = gx.data() + y * width;
-//		gy_line = gy.constScanLine(y);
 		gy_line = gy.data() + y * width;
 
 		for (int x = 0; x < width; x++)
@@ -79,8 +73,6 @@ void magnitude(vector<Uint8>& input, const vector<Uint8>& gx, const vector<Uint8
 
 vector<Uint8> hysteresis(const vector<Uint8>& image, float tmin, float tmax, int width,
 		int height) {
-//	auto res = vector<Uint8>(image.size(), image.format());
-//	res.fill(0x00);
 	vector<Uint8> result;
 	result.resize(width * height);
 	fill(result.begin(), result.end(), 0x00);
@@ -91,9 +83,7 @@ vector<Uint8> hysteresis(const vector<Uint8>& image, float tmin, float tmax, int
 	queue<pair<int, int>> edges;
 
 	for (int y = 1; y < height - 1; y++) {
-//		original_line = image.constScanLine(y);
 		original_line = image.data() + y * width;
-//		result_line = res.scanLine(y);
 		result_line = result.data() + y * width;
 
 		for (int x = 1; x < width - 1; x++) {
@@ -110,9 +100,7 @@ vector<Uint8> hysteresis(const vector<Uint8>& image, float tmin, float tmax, int
 						if (nj < 0 || nj >= height)
 							continue;
 
-//						original_line = image.constScanLine(nj);
 						original_line = image.data() + nj * width;
-//						result_line = res.scanLine(nj);
 						result_line = result.data() + nj * width;
 
 						for (int i = -1; i <= 1; i++) {
@@ -139,10 +127,6 @@ vector<Uint8> hysteresis(const vector<Uint8>& image, float tmin, float tmax, int
 
 vector<Uint8> computeCanny(const vector<Uint8>& input, int width, int height, float sigma,
 		float tmin, float tmax) {
-	vector<Uint8> result;
-	result.resize(width * height);
-
-////////////////////////////////////////////////
 	vector<Uint8> res = convolution(gaussian_kernel(sigma), input, width, height); // Gaussian blur
 	// Gradients
 	vector<Uint8> gx = convolution(sobelx, res, width, height);
@@ -155,15 +139,10 @@ vector<Uint8> computeCanny(const vector<Uint8>& input, int width, int height, fl
 	const Uint8 *prev_line, *next_line, *gx_line, *gy_line;
 
 	for (int y = 1; y < height - 1; y++) {
-//		line = res.scanLine(y);
 		line = res.data() + y * width;
-//		prev_line = res.constScanLine(y - 1);
 		prev_line = res.data() + (y - 1) * width;
-//		next_line = res.constScanLine(y + 1);
 		next_line = res.data() + (y + 1) * width;
-//		gx_line = gx.constScanLine(y);
 		gx_line = gx.data() + y * width;
-//		gy_line = gy.constScanLine(y);
 		gy_line = gy.data() + y * width;
 
 		for (int x = 1; x < width - 1; x++) {
@@ -184,14 +163,9 @@ vector<Uint8> computeCanny(const vector<Uint8>& input, int width, int height, fl
 
 	// Hysteresis
 	return hysteresis(res, tmin, tmax, width, height);
-
-////////////////////////////////////////////////
-
-	return result;
 }
 
 std::vector<Uint8> computeSobel(const std::vector<Uint8>& input, int width, int height) {
-//    QImage res(input.size(), input.format());
 	vector<Uint8> result;
 	result.resize(width * height);
 	magnitude(result, convolution(sobelx, input, width, height),
