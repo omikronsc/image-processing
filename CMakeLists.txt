@@ -15,9 +15,11 @@ include_directories(
 # Specify target & source files to compile it from
 add_executable(
   hellocuda
-  src/sdl.cu
+  src/main.cpp
   src/triangulation/s_hull_pro.cpp
   src/triangulation/DelaunayTriang.cpp
+  src/PointPlacer.cpp
+  src/edge_detection/edge_detection.cpp
 )
 
 # For linking ...
